@@ -1,0 +1,602 @@
+/* ============================================================
+   Zuckerzauber · spielspezifische Styles
+   Gemeinsames Design (Farben, Knöpfe, Dialog) aus ../assets/style.css
+   ============================================================ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.spiel-kopf {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* ---------- Levelkarte ---------- */
+.karte-kopf {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 12px;
+  max-width: 560px;
+}
+.fortschritt {
+  margin: 0;
+  color: var(--mut);
+}
+.pfad {
+  max-width: 560px;
+  max-height: 70vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
+.welt {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 60% at 50% 0%, #ffffff55, transparent 60%),
+    linear-gradient(180deg, var(--a), var(--b));
+  border-bottom: 4px dashed #ffffff66;
+}
+.welt-deko {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.pfad-linie {
+  fill: none;
+  stroke: #00000030;
+  stroke-width: 20;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pfad-punkte {
+  fill: none;
+  stroke: #ffffffcc;
+  stroke-width: 5;
+  stroke-dasharray: 2 12;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.welt-schild {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  margin: 0;
+  padding: 8px 18px 10px;
+  border-radius: 14px;
+  white-space: nowrap;
+  font-family: var(--pixel);
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: #fff;
+  background: linear-gradient(#ffffff30, #0000001a), var(--ak);
+  border: 3px solid #fff;
+  box-shadow:
+    0 5px 0 #00000040,
+    0 8px 18px -6px #000;
+  text-shadow: 0 2px 0 #00000055;
+  text-align: center;
+}
+.welt-schild small {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  opacity: 0.85;
+  margin-bottom: 3px;
+}
+.knoten {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  color: #fff;
+  background: radial-gradient(circle at 35% 30%, #ffffffaa, transparent 45%), var(--ak);
+  border: 4px solid #fff;
+  box-shadow:
+    0 5px 0 #0000004d,
+    0 10px 16px -8px #000;
+  transition: transform var(--schnell);
+}
+.knoten .nr {
+  font-family: var(--pixel);
+  font-size: 0.75rem;
+  text-shadow: 0 2px 0 #0006;
+}
+.knoten .st {
+  position: absolute;
+  bottom: -14px;
+  font-size: 0.75rem;
+  color: #ffd84d;
+  letter-spacing: 1px;
+  text-shadow:
+    0 1px 0 #000,
+    0 0 3px #000;
+  white-space: nowrap;
+}
+.knoten:hover:not(:disabled) {
+  transform: translate(-50%, -55%) scale(1.06);
+}
+.knoten:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+.knoten.geschafft {
+  background:
+    radial-gradient(circle at 35% 30%, #ffffffaa, transparent 45%),
+    color-mix(in srgb, var(--ak) 70%, #222);
+}
+.knoten:disabled {
+  cursor: not-allowed;
+  background: #8a8798;
+  border-color: #d6d3de;
+  box-shadow: 0 4px 0 #0003;
+}
+.knoten:disabled .nr {
+  opacity: 0.7;
+}
+.knoten.aktuell {
+  width: 66px;
+  height: 66px;
+  animation: hopsen 1.2s ease-in-out infinite;
+  z-index: 1;
+}
+.knoten.aktuell::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  opacity: 0.7;
+  animation: welle 1.6s ease-out infinite;
+}
+@keyframes hopsen {
+  50% {
+    transform: translate(-50%, -60%);
+  }
+}
+@keyframes welle {
+  from {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+/* ---------- Spielfeld ---------- */
+.level-titel {
+  font-family: var(--pixel);
+  font-weight: 400;
+  font-size: 0.85rem;
+  margin: 0 0 12px;
+}
+.zz-hud {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px 14px;
+  max-width: 640px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border-radius: 16px;
+  background: linear-gradient(#ffffff0d, #ffffff05), var(--panel);
+  border: 1px solid var(--line);
+}
+.zz-hud .label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--mut);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.zz-hud .wert {
+  font-family: var(--pixel);
+  font-size: 1rem;
+}
+.zz-zuege {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff40, transparent 50%), var(--violet);
+  border: 3px solid #ffffffcc;
+  box-shadow: 0 4px 0 #0005;
+}
+.zz-zuege .label {
+  color: #fff;
+  opacity: 0.85;
+  font-size: 0.75rem;
+}
+.zz-zuege .wert {
+  font-size: 1.15rem;
+  color: #fff;
+  text-shadow: 0 2px 0 #0006;
+}
+.zz-zuege.knapp {
+  background: radial-gradient(circle at 35% 30%, #ffffff40, transparent 50%), var(--pink);
+  animation: pochen 0.9s ease-in-out infinite;
+}
+@keyframes pochen {
+  50% {
+    transform: scale(1.07);
+  }
+}
+.zz-ziele {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.ziel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 999px;
+  background: #ffffff10;
+  border: 1px solid var(--line);
+  font-family: var(--pixel);
+  font-size: 0.75rem;
+}
+.ziel {
+  color: inherit;
+  cursor: pointer;
+}
+.ziel:hover,
+.ziel:focus-visible {
+  border-color: var(--ak, var(--pink));
+}
+.ziel img {
+  display: block;
+}
+.ziel img + img {
+  margin-left: -10px;
+}
+.ziel-text {
+  display: grid;
+  line-height: 1.15;
+  text-align: left;
+}
+.ziel-text small {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--mut);
+}
+.ziel.erledigt small {
+  color: inherit;
+}
+.zz-hinweis {
+  max-width: 640px;
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 8px;
+}
+.zz-hinweis[hidden] {
+  display: none;
+}
+.zz-erklaerungen {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0;
+  text-align: left;
+}
+.zz-erklaer {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+.zz-erklaer img {
+  display: block;
+}
+.zz-erklaer strong {
+  display: block;
+  font-size: 0.92rem;
+}
+.zz-erklaer span:not(.zz-neu) {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--mut);
+  line-height: 1.35;
+}
+.zz-neu {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--pink);
+  color: #fff;
+  font-family: var(--pixel);
+  font-size: 0.75rem;
+  vertical-align: middle;
+}
+.ziel.erledigt {
+  border-color: var(--lime);
+  color: var(--lime);
+}
+.zz-punkte {
+  min-width: 150px;
+  text-align: right;
+}
+.balken {
+  --wert: 0%;
+  position: relative;
+  height: 12px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: #00000055;
+  border: 1px solid var(--line);
+  overflow: visible;
+}
+.balken::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--wert);
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff6fb1, #ffd84d);
+  transition: width var(--weich);
+}
+.sternmarke {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.95rem;
+  line-height: 1;
+  color: #55536a;
+  text-shadow: 0 0 2px #000;
+  transition:
+    color var(--schnell),
+    transform var(--schnell);
+}
+.sternmarke.an {
+  color: var(--gold);
+  transform: translate(-50%, -50%) scale(1.25);
+}
+
+.brett-rahmen {
+  --a: #ffd6e7;
+  --b: #ffb3d1;
+  --ak: #ff5fa2;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 640px;
+  padding: 12px;
+  border-radius: 22px;
+  background:
+    radial-gradient(90% 70% at 50% 0%, #ffffff60, transparent 70%),
+    repeating-linear-gradient(45deg, #ffffff18 0 14px, transparent 14px 28px),
+    linear-gradient(180deg, var(--a), var(--b));
+  border: 4px solid #fff;
+  box-shadow:
+    0 6px 0 color-mix(in srgb, var(--ak) 60%, #000),
+    0 14px 30px -12px #000;
+}
+#brett {
+  display: block;
+  border-radius: 12px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+  cursor: pointer;
+}
+#brett:focus-visible {
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 0 6px var(--ak);
+}
+.banner {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  margin: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  white-space: nowrap;
+  font-family: var(--pixel);
+  font-size: clamp(1rem, 5vw, 1.7rem);
+  color: #fff;
+  -webkit-text-stroke: 1px #6b1048;
+  text-shadow:
+    0 3px 0 #b0226f,
+    0 6px 0 #6b1048,
+    0 10px 20px #0008;
+}
+.banner.klein {
+  font-size: clamp(0.8rem, 3.6vw, 1.1rem);
+}
+.banner.zeigen {
+  animation: banner-rein 1.3s ease-out forwards;
+}
+@keyframes banner-rein {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5) rotate(-6deg);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.12) rotate(2deg);
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1) rotate(0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -70%) scale(1);
+  }
+}
+.werkzeuge {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+.werkzeuge small {
+  color: var(--mut);
+  font-size: 0.75rem;
+}
+
+dialog .sterne-gross {
+  color: var(--gold);
+  letter-spacing: 6px;
+}
+dialog .klein {
+  color: var(--mut);
+  font-size: 0.85rem;
+}
+dialog.zz-dialog .info {
+  margin: 6px 0;
+}
+
+@media (max-width: 520px) {
+  .zz-hud {
+    grid-template-columns: auto 1fr;
+    padding: 8px 10px;
+  }
+  .zz-punkte {
+    grid-column: 1 / -1;
+    text-align: left;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0 10px;
+  }
+  .zz-punkte .balken {
+    grid-column: 1 / -1;
+  }
+  .zz-zuege {
+    width: 58px;
+    height: 58px;
+  }
+  .brett-rahmen {
+    padding: 6px;
+    border-width: 3px;
+    border-radius: 16px;
+  }
+  .knoten {
+    width: 50px;
+    height: 50px;
+  }
+  .knoten.aktuell {
+    width: 58px;
+    height: 58px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .knoten,
+  .balken::before,
+  .sternmarke {
+    transition: none;
+  }
+  .knoten.aktuell,
+  .knoten.aktuell::after,
+  .zz-zuege.knapp {
+    animation: none;
+  }
+  .banner.zeigen {
+    animation: none;
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  .pfad {
+    scroll-behavior: auto;
+  }
+}
+.deko-teil {
+  position: absolute;
+  opacity: 0.6;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 0 #0002);
+}
+#spielfeld,
+#karte {
+  scroll-margin-top: 84px;
+}
+
+/* hell-gen: automatisch erzeugt */
+@media (prefers-color-scheme: light) {
+  :where(:root:not([data-thema="dunkel"])) .pfad-linie {
+    stroke: #1a1d400a;
+  }
+  :where(:root:not([data-thema="dunkel"])) .welt-schild {
+    background: linear-gradient(#ffffff30, #1a1d4008), var(--ak);
+  }
+  :where(:root:not([data-thema="dunkel"])) .knoten.geschafft {
+    background:
+      radial-gradient(circle at 35% 30%, #ffffffaa, transparent 45%),
+      color-mix(in srgb, var(--ak) 70%, #e6e6e6);
+  }
+  :where(:root:not([data-thema="dunkel"])) .balken {
+    background: #1a1d4012;
+  }
+  :where(:root:not([data-thema="dunkel"])) .banner {
+    -webkit-text-stroke: 1px #f1dbe9;
+  }
+  :where(:root:not([data-thema="dunkel"])) .deko-teil {
+    filter: drop-shadow(0 3px 0 #1a1d4008);
+  }
+}
+
+:where(:root[data-thema="hell"]) .pfad-linie {
+  stroke: #1a1d400a;
+}
+:where(:root[data-thema="hell"]) .welt-schild {
+  background: linear-gradient(#ffffff30, #1a1d4008), var(--ak);
+}
+:where(:root[data-thema="hell"]) .knoten.geschafft {
+  background:
+    radial-gradient(circle at 35% 30%, #ffffffaa, transparent 45%),
+    color-mix(in srgb, var(--ak) 70%, #e6e6e6);
+}
+:where(:root[data-thema="hell"]) .balken {
+  background: #1a1d4012;
+}
+:where(:root[data-thema="hell"]) .banner {
+  -webkit-text-stroke: 1px #f1dbe9;
+}
+:where(:root[data-thema="hell"]) .deko-teil {
+  filter: drop-shadow(0 3px 0 #1a1d4008);
+}

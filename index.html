@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#07070f" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f2f3f9" media="(prefers-color-scheme: light)" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <script src="./assets/thema.js?v=20261024"></script>
+    <link rel="stylesheet" href="./assets/style.css?v=20261024w" />
+    <!-- Spielspezifische Styles (Levelkarte, Brett, HUD) -->
+    <link rel="stylesheet" href="./spiel.css?v=20261024t" />
+    <link rel="stylesheet" href="./assets/umgebung.css?v=20261024" />
+    <title>Zuckerzauber · Browser-Arcade</title>
+    <meta
+      name="description"
+      content="Zuckerzauber: Drei-gewinnt-Puzzle mit 150 Leveln in zehn süßen Welten – Bonbons tauschen, Gelee entfernen, Zutaten nach unten bringen. Mit Spezial-Bonbons, Sternen und Levelkarte."
+    />
+  </head>
+  <body style="--ak: var(--cyan)">
+    <div class="raster" aria-hidden="true"></div>
+    <a class="skip-link" href="#main">Zum Inhalt springen</a>
+    <header class="kopf">
+      <nav class="container nav" aria-label="Hauptnavigation">
+        <a class="marke" href="./"><span class="logo">▶</span>GAMES</a>
+        <div class="nav-links">
+          <a href="./impressum.html">Impressum</a><a href="./datenschutz.html">Datenschutz</a>
+        </div>
+      </nav>
+    </header>
+    <main id="main" class="container">
+      <div class="spiel-kopf">
+        <div>
+          <h1>ZUCKERZAUBER</h1>
+          <p class="unterzeile">
+            Drei gleiche Bonbons in eine Reihe: 150 Level in zehn süßen Welten.
+          </p>
+        </div>
+        <div id="ton-platz"></div>
+      </div>
+
+      <!-- Levelkarte -->
+      <section id="karte" aria-labelledby="karte-titel">
+        <h2 id="karte-titel" class="sr-only">Levelkarte</h2>
+        <div class="karte-kopf">
+          <p id="fortschritt" class="fortschritt"></p>
+          <button type="button" class="knopf primaer" id="weiter">Weiter</button>
+        </div>
+        <div class="pfad" id="pfad" tabindex="-1"></div>
+      </section>
+
+      <!-- Spielfeld -->
+      <section id="spielfeld" hidden aria-labelledby="level-titel">
+        <h2 id="level-titel" class="level-titel"></h2>
+        <div class="zz-hud">
+          <div class="zz-zuege">
+            <span class="label">Züge</span><span class="wert" id="hud-zuege">0</span>
+          </div>
+          <div class="zz-ziele" id="hud-ziele" aria-label="Ziele"></div>
+          <div class="zz-punkte">
+            <span class="label">Punkte</span><span class="wert" id="hud-punkte">0</span>
+            <div
+              class="balken"
+              id="punkte-balken"
+              role="progressbar"
+              aria-label="Punkte"
+              aria-valuemin="0"
+              aria-valuenow="0"
+            >
+              <span class="sternmarke">★</span><span class="sternmarke">★</span
+              ><span class="sternmarke">★</span>
+            </div>
+          </div>
+        </div>
+        <div class="zz-hinweis" id="zz-hinweis" hidden></div>
+        <div class="brett-rahmen zz-laden" id="brett-rahmen">
+          <canvas
+            id="brett"
+            tabindex="0"
+            role="application"
+            aria-label="Spielbrett. Pfeiltasten bewegen, Enter wählt ein Bonbon, dann Pfeiltaste zum Tauschen. H gibt einen Tipp."
+          ></canvas>
+          <p class="banner" id="banner" aria-hidden="true"></p>
+        </div>
+        <div class="werkzeuge">
+          <button type="button" class="knopf" id="tipp">Tipp <small>(H)</small></button>
+          <button type="button" class="knopf" id="neustart">Neustart</button>
+          <button type="button" class="knopf" id="zur-karte">Levelkarte</button>
+        </div>
+        <p class="steuerung">
+          Maus/Touch: ein Bonbon zum Nachbarn ziehen oder nacheinander antippen. Tastatur: Brett mit
+          <kbd>Tab</kbd> wählen, <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> bewegen,
+          <kbd>Enter</kbd> wählt, dann Pfeiltaste zum Tauschen; <kbd>H</kbd> zeigt einen Tipp,
+          <kbd>Esc</kbd> hebt die Auswahl auf.
+        </p>
+      </section>
+      <p class="sr-only" id="status" role="status" aria-live="polite"></p>
+
+      <section style="max-width: 420px; margin-top: 36px">
+        <h2
+          id="topliste-titel"
+          style="font-family: var(--pixel); font-weight: 400; font-size: 0.85rem"
+        >
+          Topliste · Punkte gesamt
+        </h2>
+        <div id="topliste"></div>
+        <button class="knopf" id="reset" style="margin-top: 10px">Spielstand zurücksetzen</button>
+      </section>
+
+      <section class="lernbox">
+        <details open>
+          <summary>Anleitung &amp; Regeln</summary>
+          <ul>
+            <li>
+              <strong>Tauschen:</strong> Zwei benachbarte Bonbons tauschen – aber nur, wenn danach
+              mindestens drei gleiche in einer Reihe oder Spalte liegen. Sie lösen sich auf, von
+              oben rutscht Neues nach. Entstehen dabei neue Reihen, gibt es eine
+              <em>Kaskade</em> mit steigenden Punkten.
+            </li>
+            <li>
+              <strong>Spezial-Bonbons:</strong> Vier in einer Reihe ergeben ein
+              <strong>Streifen-Bonbon</strong> (räumt eine ganze Zeile oder Spalte), fünf in L- oder
+              T-Form eine <strong>Brausebombe</strong> (räumt die Umgebung), fünf in gerader Linie
+              einen <strong>Regenbogenstern</strong> (tausche ihn mit einem Bonbon – alle dieser
+              Sorte verschwinden). Zwei Spezial-Bonbons miteinander getauscht ergeben besonders
+              starke Kombinationen.
+            </li>
+            <li>
+              <strong>Ziele:</strong> Je nach Level Punkte sammeln, das ganze <strong>Gelee</strong>
+              entfernen (Reihe darauf auflösen; doppeltes Gelee braucht zwei Treffer),
+              <strong>Kekse und Schokoblöcke</strong> zerbröseln (Reihe daneben auflösen) oder
+              <strong>Haselnüsse bzw. Kirschen</strong> bis ganz nach unten bringen – alles in einer
+              begrenzten Zahl von Zügen.
+            </li>
+            <li>
+              <strong>Zuckerrausch:</strong> Ist das Ziel erreicht, werden übrige Züge zu
+              Spezial-Bonbons und Bonuspunkten. Die Punkte entscheiden über ein bis drei Sterne.
+            </li>
+            <li>
+              Geht kein Zug mehr, wird das Brett neu gemischt. Wer 5 Sekunden nichts tut, bekommt
+              einen Hinweis. Jedes geschaffte Level schaltet das nächste frei. Jede Bonbonsorte hat
+              eine eigene Form, damit man sie auch ohne Farbsehen unterscheiden kann.
+            </li>
+            <li>
+              In die <strong>Topliste</strong> geht die Summe deiner Bestpunkte über alle 150 Level.
+            </li>
+          </ul>
+        </details>
+      </section>
+
+      <section class="lernbox">
+        <details>
+          <summary>Wie funktioniert der Code?</summary>
+          <ul>
+            <li>
+              <strong>Das Brett</strong> ist eine flache Liste: Feld <code>i</code> liegt in Zeile
+              <code>i / Breite</code>, Spalte <code>i % Breite</code>. Pro Feld gibt es kleine
+              Zahlen für Sorte, Spezialart, Gelee-Schichten und Hindernis (<code>Int8Array</code>).
+            </li>
+            <li>
+              <strong>Reihen finden:</strong> Jede Zeile und Spalte wird einmal durchlaufen und
+              gleiche Nachbarn gezählt. Überschneiden sich eine waagrechte und eine senkrechte
+              Reihe, ist das eine L- oder T-Form – daraus wird die Brausebombe.
+            </li>
+            <li>
+              <strong>Phasen statt Animation:</strong> Die Spielregeln (<code>engine.js</code>)
+              wissen nichts vom Bildschirm. Ein Zug liefert eine Liste von Phasen – „tauschen“,
+              „weg“, „fallen“, „mischen“ – mit dem Brett danach. Die Oberfläche spielt sie
+              nacheinander ab und lässt die Bonbons mit etwas Schwerkraft und einem kleinen Aufprall
+              nachrutschen.
+            </li>
+            <li>
+              <strong>Die Level</strong> hat ein Node-Skript erzeugt: Ein Computer-Spieler (wählt
+              gierig den Zug mit dem besten Ergebnis) hat jedes Level hunderte Male gespielt. Daraus
+              folgt die Zugzahl, damit die Gewinnquote von etwa 95 % in Welt 1 auf etwa 35 % in Welt
+              10 sinkt – und die Punkte für zwei und drei Sterne.
+            </li>
+            <li>
+              <strong>Zufall:</strong> Die Bonbons sind bei jedem Versuch anders verteilt (<code
+                >crypto.getRandomValues</code
+              >
+              als Startwert). Für die Tests nutzt der Generator einen festen Startwert, damit jeder
+              Lauf dieselben Zahlen liefert.
+            </li>
+            <li>
+              <strong>Grafik:</strong> Alle Bonbons werden mit der Canvas-API gemalt (Verläufe,
+              Bögen, Glanzlichter) – einmal pro Größe in ein unsichtbares Canvas, danach nur noch
+              kopiert. Keine Bilddateien, keine fremden Grafiken, alle Klänge sind selbst erzeugte
+              Töne.
+            </li>
+          </ul>
+        </details>
+      </section>
+    </main>
+    <footer class="fuss">
+      <div class="container fuss-in">
+        <span>Browser-Arcade · Open Source</span>
+        <nav aria-label="Rechtliches">
+          <a href="./impressum.html">Impressum</a><a href="./datenschutz.html">Datenschutz</a>
+        </nav>
+      </div>
+    </footer>
+    <script type="module" src="./game.js?v=20261023f"></script>
+  </body>
+</html>
